@@ -3,16 +3,12 @@
 import re
 import os.path
 import sys
-from xml.dom.minidom import parse
+import plistlib
 
-def playListr(filename, dest=None):
-    dom = parse(filename)
-    playlists = dom.getElementsByTagName('dict')
-    for node in playlists:
-        key=node.getElementsByTagName('key')
-        for k in key:
-            keyname= k.nodeValue
-            print keyname
+def playListr(filename, dest):
+    plistr = plistlib.readPlist(filename)
+    for playlist in plistr['Playlists']:
+        print playlist['Name']
 
 
 if __name__ == "__main__":
@@ -39,5 +35,5 @@ if __name__ == "__main__":
     dest = sys.argv[1]
     
 
-    print 'Library File is {0} and Output Dir is {1}\n'.format(sys.argv[1],sys.argv[2])
+    print '\nLibrary File is {0} and Output Dir is {1}\n'.format(sys.argv[1],sys.argv[2])
     playListr(libraryFile, dest)
