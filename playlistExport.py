@@ -77,7 +77,6 @@ if __name__ == "__main__":
     if len(sys.argv) != 3: 
         print '\nUsage: ./playlistExport.py <ITUNES-LIBRARY-XML-FILE> <M3U-OUTPUTDIR>\n'
         sys.exit(1) 
-
     if os.path.isfile(sys.argv[1]):
         try:
             doc = open(sys.argv[1]).read().replace('\n', '')
@@ -87,7 +86,6 @@ if __name__ == "__main__":
     else:
             print "\nYow, looks like file {0} doesn't exist.\n".format(sys.argv[1])
             sys.exit(1)
-
     if not os.path.isdir(sys.argv[2]):
             print 'Oowie - directory {0} doesn\'t exist.\n'.format(sys.argv[2])
             sys.exit(1)
