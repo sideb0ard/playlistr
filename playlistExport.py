@@ -5,10 +5,71 @@ import os.path
 import sys
 import plistlib
 
-def playListr(filename, dest):
-    plistr = plistlib.readPlist(filename)
-    for playlist in plistr['Playlists']:
-        print playlist['Name']
+m3uList = "#EXTM3U\n%s\n"
+
+class Playlists(object):
+
+    def __init__(self, filename=None, destDir=None):
+        self.plistr= None
+        if filename:
+            self.plistr = plistlib.readPlist(filename)
+        if not destDir:
+            destDir = './'
+        self.destDir = destDir
+
+#    def export(self):
+#        print "YAR!\n"
+#        for playlist in self.plistr['Playlists']:
+#            playlistName = playlist['Name']
+#            print "Playlist Name: {0}\n".format(playlistName)
+#
+#	def processTrack(self, trackData):
+#	    length = trackData.get('Total Time') or 300000
+#	    song = trackData.get('Name') or 'Unknown'
+#	    artist = trackData.get('Artist') or 'Unknown'
+#	    album = trackData.get('Album') or 'Unknown'
+#	    data = {
+#	        'filename' : trackData['Location'],
+#	        'length' : int(length) / 1000 + 1,
+#	        'song' : song,
+#	        'artist' : artist,
+#	        'album' : album,
+#	    }
+#	    return data
+#	    
+#	def processTrackIDz(self,idz):
+#	    output =''
+#	    for id in idz:
+#	        try: 
+#	            trackData = self['Tracks'][int(id)]
+#	            output += self.processTrack(trackData)
+#	        except KeyError:
+#	            print "Barfed on {0}, skipping..\n".format(id)
+#	    return output
+	
+    def export(self):
+        print "YAR!\n"
+        for playlist in self.plistr['Playlists']:
+            playlistName = playlist['Name']
+            print "Playlist Name: {0}\n".format(playlistName)
+            try:
+                items = playlist['Playlist Items']
+            except:
+                print "No playlist items - skipping..\n"
+                continue
+            print "\n{0} - with {1}\n".format(playlistName,items)
+            trackIDz = [x['Track ID'] for x in items]
+            print "\nTRAK IDZ - {0}".format(trackIDz)
+#	        data = m3uList % processTrackIDz(trackIDz)
+#	        print "\nDATA:: {0}\n".format(data) 
+
+#    def echo(self,text):
+#        print "\nYAR! {0}\n".format(text)
+
+def playListr(filename, dest=None):
+    pls = Playlists(filename,dest)
+    pls.export()
+#    pls.echo("BLAH")
 
 
 if __name__ == "__main__":
@@ -34,6 +95,5 @@ if __name__ == "__main__":
     libraryFile = sys.argv[1]
     dest = sys.argv[1]
     
-
     print '\nLibrary File is {0} and Output Dir is {1}\n'.format(sys.argv[1],sys.argv[2])
     playListr(libraryFile, dest)
