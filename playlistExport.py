@@ -20,21 +20,6 @@ class Playlists(object):
             destDir = './'
         self.destDir = destDir
 
-#	def processTrack(self, trackData):
-#	    length = trackData.get('Total Time') or 300000
-#	    song = trackData.get('Name') or 'Unknown'
-#	    artist = trackData.get('Artist') or 'Unknown'
-#	    album = trackData.get('Album') or 'Unknown'
-#	    data = {
-#	        'filename' : trackData['Location'],
-#	        'length' : int(length) / 1000 + 1,
-#	        'song' : song,
-#	        'artist' : artist,
-#	        'album' : album,
-#	    }
-#	    return data
-#	    
-
     def processTrack(self, trackData):
         #print "\n\tPROC:: {0}".format(trackData)
         length = trackData.get('Total Time') or 300000
@@ -49,7 +34,7 @@ class Playlists(object):
         for id in idz:
             try:
                 trackData = self.plistr['Tracks'][str(id)]
-                #print "\nblah - {0}".format(trackData)
+                #print "\nTRACKDATA:: - {0}".format(trackData)
                 self.processTrack(trackData)
                 #output += self.processTrack(trackData)
             except KeyError:
@@ -68,8 +53,10 @@ class Playlists(object):
                 continue
             #print "FULLPLAYLIST\n>>>>>>{0}\n\n".format(playlist)
             #try:
-            if 'Distinguished Kind' in playlist:
-                print "SKIPPING DISTINGUISHED...\n\n"
+            #if 'Distinguished Kind' in playlist:
+            if 'Folder' in playlist:
+            #if playlist['Folder'] == 'True':
+                print "SKIPPING FOLDER...\n\n"
                 continue
             try:
                 print json.dumps(playlist)
