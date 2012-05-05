@@ -4,8 +4,11 @@ import re
 import os.path
 import sys
 import plistlib
+import simplejson as json
 
 m3uList = "#EXTM3U\n%s\n"
+m3uEntry = "#EXTINF:%(length)s,"
+m3uEntry += "%(artist)s - %(album)s - %(song)s\n%(filename)s\n"
 
 class Playlists(object):
 
@@ -17,12 +20,6 @@ class Playlists(object):
             destDir = './'
         self.destDir = destDir
 
-#    def export(self):
-#        print "YAR!\n"
-#        for playlist in self.plistr['Playlists']:
-#            playlistName = playlist['Name']
-#            print "Playlist Name: {0}\n".format(playlistName)
-#
 #	def processTrack(self, trackData):
 #	    length = trackData.get('Total Time') or 300000
 #	    song = trackData.get('Name') or 'Unknown'
@@ -37,34 +34,63 @@ class Playlists(object):
 #	    }
 #	    return data
 #	    
-#	def processTrackIDz(self,idz):
-#	    output =''
-#	    for id in idz:
-#	        try: 
-#	            trackData = self['Tracks'][int(id)]
-#	            output += self.processTrack(trackData)
-#	        except KeyError:
-#	            print "Barfed on {0}, skipping..\n".format(id)
-#	    return output
-	
+
+    def processTrack(self, trackData):
+        #print "\n\tPROC:: {0}".format(trackData)
+        length = trackData.get('Total Time') or 300000
+        #print "\nLENG = {0}".format(length)
+#        data = {
+#            'length' : int(length) / 1000 + 1.
+#        }
+#        return m3uEntry % data
+
+    def processTrackIDz(self,idz):
+        output =''
+        for id in idz:
+            try:
+                trackData = self.plistr['Tracks'][str(id)]
+                #print "\nblah - {0}".format(trackData)
+                self.processTrack(trackData)
+                #output += self.processTrack(trackData)
+            except KeyError:
+                print "Barfed on {0}, skipping .. \n".format(id)
+        #print json.dumps(output)
+        return output
+
+
     def export(self):
-        print "YAR!\n"
+        #print "YAR!\n"
         for playlist in self.plistr['Playlists']:
             playlistName = playlist['Name']
-            print "Playlist Name: {0}\n".format(playlistName)
+            print "PLAYLIST:{0}".format(playlistName)
+            if re.match('Library',playlistName):
+                print "SKIPPING LIBRARY...\n\n"
+                continue
+            #print "FULLPLAYLIST\n>>>>>>{0}\n\n".format(playlist)
+            #try:
+            if 'Distinguished Kind' in playlist:
+                print "SKIPPING DISTINGUISHED...\n\n"
+                continue
+            try:
+                print json.dumps(playlist)
+            except:
+                print "\n\nouch\n\n"
+            print "\n"
+            #print "Playlist Name: {0}\n".format(playlistName)
             try:
                 items = playlist['Playlist Items']
             except:
-                print "No playlist items - skipping..\n"
+                #print "No playlist items - skipping..\n"
                 continue
-            print "\n{0} - with {1}\n".format(playlistName,items)
+            #print "\n{0} - with {1}\n".format(playlistName,items)
             trackIDz = [x['Track ID'] for x in items]
-            print "\nTRAK IDZ - {0}".format(trackIDz)
+            #print "\nTRAK IDZ - {0}".format(trackIDz)
+            data = self.processTrackIDz(trackIDz)
 #	        data = m3uList % processTrackIDz(trackIDz)
-#	        print "\nDATA:: {0}\n".format(data) 
+#	        #print "\nDATA:: {0}\n".format(data) 
 
 #    def echo(self,text):
-#        print "\nYAR! {0}\n".format(text)
+#        #print "\nYAR! {0}\n".format(text)
 
 def playListr(filename, dest=None):
     pls = Playlists(filename,dest)
