@@ -1,94 +1,36 @@
 #!/usr/bin/python
-
-import re
 import os.path
 import sys
 import plistlib
-import simplejson as json
+import pymongo
+from pymongo import Connection
 
-m3uList = "#EXTM3U\n%s\n"
-m3uEntry = "#EXTINF:%(length)s,"
-m3uEntry += "%(artist)s - %(album)s - %(song)s\n%(filename)s\n"
+class Playlist(object):
 
-class Playlists(object):
-
-    def __init__(self, filename=None, destDir=None):
+    def __init__(self, filename=None):
         self.plistr= None
         if filename:
             self.plistr = plistlib.readPlist(filename)
-        if not destDir:
-            destDir = './'
-        self.destDir = destDir
 
-    def processTrack(self, trackData):
-        #print "\n\tPROC:: {0}".format(trackData)
-        length = trackData.get('Total Time') or 300000
-        #print "\nLENG = {0}".format(length)
-#        data = {
-#            'length' : int(length) / 1000 + 1.
-#        }
-#        return m3uEntry % data
+    def importPlaylists(self):
+        for playlist in self.plistr["Playlists"]:
+            print "PLAYLIST:::{0}".format(playlist)
 
-    def processTrackIDz(self,idz):
-        output =''
-        for id in idz:
-            try:
-                trackData = self.plistr['Tracks'][str(id)]
-                #print "\nTRACKDATA:: - {0}".format(trackData)
-                self.processTrack(trackData)
-                #output += self.processTrack(trackData)
-            except KeyError:
-                print "Barfed on {0}, skipping .. \n".format(id)
-        #print json.dumps(output)
-        return output
+    def importTracks(self):
+        trackKeys = self.plistr["Tracks"]
+        for key in trackKeys:
+            trackData = self.plistr['Tracks'][str(key)]
+            print "TRACKDATA:::{0}".format(trackData)
 
-
-    def export(self):
-        #print "YAR!\n"
-        for playlist in self.plistr['Playlists']:
-            playlistName = playlist['Name']
-            print "PLAYLIST:{0}".format(playlistName)
-            if re.match('Library',playlistName):
-                print "SKIPPING LIBRARY...\n\n"
-                continue
-            #print "FULLPLAYLIST\n>>>>>>{0}\n\n".format(playlist)
-            #try:
-            #if 'Distinguished Kind' in playlist:
-            if 'Folder' in playlist:
-            #if playlist['Folder'] == 'True':
-                print "SKIPPING FOLDER...\n\n"
-                continue
-            try:
-                print json.dumps(playlist)
-            except:
-                print "\n\nouch\n\n"
-            print "\n"
-            #print "Playlist Name: {0}\n".format(playlistName)
-            try:
-                items = playlist['Playlist Items']
-            except:
-                #print "No playlist items - skipping..\n"
-                continue
-            #print "\n{0} - with {1}\n".format(playlistName,items)
-            trackIDz = [x['Track ID'] for x in items]
-            #print "\nTRAK IDZ - {0}".format(trackIDz)
-            data = self.processTrackIDz(trackIDz)
-#	        data = m3uList % processTrackIDz(trackIDz)
-#	        #print "\nDATA:: {0}\n".format(data) 
-
-#    def echo(self,text):
-#        #print "\nYAR! {0}\n".format(text)
-
-def playListr(filename, dest=None):
-    pls = Playlists(filename,dest)
-    pls.export()
-#    pls.echo("BLAH")
-
+def playListr(filename):
+    myLib = Playlist(filename)
+    myLib.importPlaylists() 
+    myLib.importTracks() 
 
 if __name__ == "__main__":
     
-    if len(sys.argv) != 3: 
-        print '\nUsage: ./playlistExport.py <ITUNES-LIBRARY-XML-FILE> <M3U-OUTPUTDIR>\n'
+    if len(sys.argv) != 2: 
+        print '\nUsage: ./playlistExport.py <ITUNES-LIBRARY-XML-FILE>\n'
         sys.exit(1) 
     if os.path.isfile(sys.argv[1]):
         try:
@@ -99,12 +41,8 @@ if __name__ == "__main__":
     else:
             print "\nYow, looks like file {0} doesn't exist.\n".format(sys.argv[1])
             sys.exit(1)
-    if not os.path.isdir(sys.argv[2]):
-            print 'Oowie - directory {0} doesn\'t exist.\n'.format(sys.argv[2])
-            sys.exit(1)
 
     libraryFile = sys.argv[1]
-    dest = sys.argv[1]
     
-    print '\nLibrary File is {0} and Output Dir is {1}\n'.format(sys.argv[1],sys.argv[2])
-    playListr(libraryFile, dest)
+    print '\nLibrary File is {0}\n'.format(sys.argv[1])
+    playListr(libraryFile)
