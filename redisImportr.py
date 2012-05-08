@@ -2,8 +2,7 @@
 import os.path
 import sys
 import plistlib
-import pymongo
-from pymongo import Connection
+import redis
 
 class Playlist(object):
 
@@ -13,33 +12,28 @@ class Playlist(object):
             self.plistr = plistlib.readPlist(filename)
 
 
-    def importPlaylists(self, pcollection):
+    def importPlaylists(self):
         for playlist in self.plistr["Playlists"]:
-            print "CONNECTION IS {0}".format(pcollection)
-            print "Inserting playlist now...\n"
             try:
-                pcollection.insert(playlist)
+		print "PL PARP - {0}!\n".format(playlist)
             except:
                 print "Oh ya, something burny\n\n"
 
-    def importTracks(self, tcollection):
+    def importTracks(self):
+	r = redis.StrictRedis(host='localhost', port=6379, db=0)
         trackKeys = self.plistr["Tracks"]
         for key in trackKeys:
             trackData = self.plistr['Tracks'][str(key)]
-            print "Inserting trackdata now...\n"
             try:
-                tcollection.insert(trackData)
+		print "PARP - {0} !\n".format(key)
+		r.set(key,trackData)
             except:
                 print "Ouch, trackData munged\n\n"
 
 def playListr(filename):
     myLib = Playlist(filename)
-    c = Connection()
-    db = c.musicLibrary
-    pcollection = db.playlists
-    myLib.importPlaylists(pcollection) 
-    tcollection = db.tracks
-    myLib.importTracks(tcollection) 
+    #myLib.importPlaylists() 
+    myLib.importTracks() 
 
 if __name__ == "__main__":
     
