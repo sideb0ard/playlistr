@@ -15,24 +15,24 @@ class Playlist(object):
     def importPlaylists(self):
         for playlist in self.plistr["Playlists"]:
             try:
-		print "PL PARP - {0}!\n".format(playlist)
+		        print "PL PARP - {0}!\n".format(playlist)
             except:
                 print "Oh ya, something burny\n\n"
 
     def importTracks(self):
-	r = redis.StrictRedis(host='localhost', port=6379, db=0)
+	    #r = redis.StrictRedis(host='localhost', port=6379, db=0)
         trackKeys = self.plistr["Tracks"]
         for key in trackKeys:
             trackData = self.plistr['Tracks'][str(key)]
             try:
-		print "PARP - {0} !\n".format(key)
-		r.set(key,trackData)
+		        print "PARP - {0} !\n".format(key)
+		        #r.set(key,trackData)
             except:
                 print "Ouch, trackData munged\n\n"
 
 def playListr(filename):
     myLib = Playlist(filename)
-    #myLib.importPlaylists() 
+    myLib.importPlaylists() 
     myLib.importTracks() 
 
 if __name__ == "__main__":
