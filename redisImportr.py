@@ -12,28 +12,35 @@ class Playlist(object):
             self.plistr = plistlib.readPlist(filename)
 
 
-    def importPlaylists(self):
+    def importPlaylists(self,r):
         for playlist in self.plistr["Playlists"]:
             try:
-		        print "PL PARP - {0}!\n".format(playlist)
+                key = "playlist:1:itunes:{0}:contents".format(playlist['Playlist ID'])
+                contents = "{0}".format(playlist)
+                print "got redis object - {0}".format(r)
+                print "key == {0} // data == {1}".format(key,contents)
+                r.set(key,contents)
+                #print "playlist:1:itunes:{0}:contents\n".format(playlist['Playlist ID'])
+                #print "PL PARP - {0}!\n".format(playlist['Playlist ID'])
             except:
                 print "Oh ya, something burny\n\n"
 
-    def importTracks(self):
-	    #r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        trackKeys = self.plistr["Tracks"]
-        for key in trackKeys:
-            trackData = self.plistr['Tracks'][str(key)]
+    def importTracks(self,r):
+        for track in self.plistr["Tracks"]:
             try:
-		        print "PARP - {0} !\n".format(key)
-		        #r.set(key,trackData)
+                key = "track:1:itunes:{0}:contents".format(track)
+                contents = self.plistr['Tracks'][str(track)]
+                print "got redis object - {0}".format(r)
+                print "key == {0} // data == {1}".format(key,contents)
+                r.set(key,contents)
             except:
                 print "Ouch, trackData munged\n\n"
 
 def playListr(filename):
     myLib = Playlist(filename)
-    myLib.importPlaylists() 
-    myLib.importTracks() 
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    #myLib.importPlaylists(r) 
+    myLib.importTracks(r) 
 
 if __name__ == "__main__":
     
