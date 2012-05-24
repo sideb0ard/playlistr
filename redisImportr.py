@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import os.path
 import sys
+import traceback
 import plistlib
+import json
 import redis
 
 class Playlist(object):
@@ -15,11 +17,12 @@ class Playlist(object):
     def importPlaylists(self,r):
         for playlist in self.plistr["Playlists"]:
             try:
-                key = "playlist:1:itunes:{0}:contents".format(playlist['Playlist ID'])
-                contents = "{0}".format(playlist)
+                key = "playlist:user0:itunes:{0}:document".format(playlist['Playlist ID'])
+                #document = json.dumps(playlist)
+                document = JSONEncoder().encode(playlist.__dict__)
                 print "got redis object - {0}".format(r)
-                print "key == {0} // data == {1}".format(key,contents)
-                r.set(key,contents)
+                print "key == {0} // data == {1}".format(key,document)
+                #r.set(key,contents)
                 #print "playlist:1:itunes:{0}:contents\n".format(playlist['Playlist ID'])
                 #print "PL PARP - {0}!\n".format(playlist['Playlist ID'])
             except:
@@ -28,13 +31,18 @@ class Playlist(object):
     def importTracks(self,r):
         for track in self.plistr["Tracks"]:
             try:
-                key = "track:1:itunes:{0}:contents".format(track)
+                key = "track:user0:itunes:{0}:document".format(track)
                 contents = self.plistr['Tracks'][str(track)]
+                #print contents
+                document = json.dumps(contents)
+                print document
                 print "got redis object - {0}".format(r)
-                print "key == {0} // data == {1}".format(key,contents)
-                r.set(key,contents)
+                #print "key == {0} // data == {1}".format(key,document)
+                #print "key == {0} // data == {1}".format(key,contents)
+                #r.set(key,contents)
             except:
                 print "Ouch, trackData munged\n\n"
+                traceback.print_exc(file=sys.stdout)
 
 def playListr(filename):
     myLib = Playlist(filename)

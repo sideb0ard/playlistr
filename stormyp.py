@@ -2,16 +2,19 @@
 import tornado.ioloop
 import tornado.web
 import redis
+import json
+from plistlib import readPlistFromString
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write("Hello, playrrr!!\n")
+        self.write("Hello, tigrrr!!\n")
 
 class PlaylistHandler(tornado.web.RequestHandler):
-    def get(self, pid = None):
+    def get(self, username = None, playlistID = None):
+        #self.write("Username: {0} // PlaylistID: {1}".format(username, playlistID))
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        if pid is None:
-            self.write("Printing all playlists\n")
+        if playlistID is None:
+            #self.write("Printing all playlists\n")
             key = "playlist:1:*"
             #print "KEY SI {0}".format(key)
             allplaylistkeys = r.keys(key)
@@ -20,11 +23,16 @@ class PlaylistHandler(tornado.web.RequestHandler):
                 # NEED PAGINATION
                 #allplaylists { k : r.get(key) }
                 #self.write("{0}".format(r.get(k)))
+                #plist_version = readPlist(r.get(k))
+                plist_version = readPlistFromString(r.get(k))
+                print "plsit -- {0}".format(plist_version)
+                #allplaylists[k] = json.dumps(plist_version)
                 allplaylists[k] = r.get(k)
-            self.write("Playlistz --\n{0}\n".format(allplaylists))
+            #json_playlists = json.dumps(allplaylists)
+            print "{0}".format(allplaylists)
         else:
-            self.write("Playlists Bitch {0}\n".format(pid))
-            key = "playlist:1:itunes:{0}:contents".format(pid)
+            self.write("Playlists Bitch {0}\n".format(playlistID))
+            key = "playlist:1:itunes:{0}:contents".format(playlistID)
             self.write("Key -- {0}\n".format(key))
             playlist = r.get(key)
             self.write("Playlist -- {0}\n".format(playlist))
@@ -40,8 +48,9 @@ class TrackHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r"/", MainHandler),
-    (r"/playlist/", PlaylistHandler),
-    (r"/playlist/([0-9]+)", PlaylistHandler),
+    (r"/playlist/([a-zA-Z0-9]+)/?", PlaylistHandler),
+    (r"/playlist/([a-zA-Z0-9]+)/([0-9]+)", PlaylistHandler),
+    #(r"/playlist/([0-9]+)", PlaylistHandler),
     (r"/track/([0-9]+)", TrackHandler),
 ])
 
