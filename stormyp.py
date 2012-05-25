@@ -46,12 +46,23 @@ class TrackHandler(tornado.web.RequestHandler):
         track = r.get(key)
         self.write("Trax09r -- {0}\n".format(track))
 
+class ImportPlaylistHandler(tornado.web.RequestHandler):
+    def get(self,tid):
+        r = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.write("TRAXX Bitch {0}\n".format(tid))
+        key = "track:1:itunes:{0}:contents".format(tid)
+        self.write("Key -- {0}\n".format(key))
+        track = r.get(key)
+        self.write("Trax09r -- {0}\n".format(track))
+
+
 application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/playlist/([a-zA-Z0-9]+)/?", PlaylistHandler),
     (r"/playlist/([a-zA-Z0-9]+)/([0-9]+)", PlaylistHandler),
     #(r"/playlist/([0-9]+)", PlaylistHandler),
     (r"/track/([0-9]+)", TrackHandler),
+    (r"/import/playlist/", ImportPlaylistHandler),
 ])
 
 if __name__ == "__main__":

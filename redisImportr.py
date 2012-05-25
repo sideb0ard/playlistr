@@ -5,6 +5,7 @@ import traceback
 import plistlib
 import json
 import redis
+import re
 
 class Playlist(object):
 
@@ -17,29 +18,35 @@ class Playlist(object):
     def importPlaylists(self,r):
         for playlist in self.plistr["Playlists"]:
             try:
-                key = "playlist:user0:itunes:{0}:document".format(playlist['Playlist ID'])
-                #document = json.dumps(playlist)
-                document = JSONEncoder().encode(playlist.__dict__)
-                print "got redis object - {0}".format(r)
-                print "key == {0} // data == {1}".format(key,document)
-                #r.set(key,contents)
-                #print "playlist:1:itunes:{0}:contents\n".format(playlist['Playlist ID'])
-                #print "PL PARP - {0}!\n".format(playlist['Playlist ID'])
+                playlistID = playlist['Playlist ID']
+                key = "playlist:user0:itunes:{0}:document".format(playlistID)
+                #print playlist, "\n\n"
+                #print key, "\n\n"
+                #contents = self.plistr['Playlists'][playlist]
+                #print contents, "\n\n"
+                #cleancontents = {}
+                #for item in contents:
+                #    if not re.search('Date', item):
+                #        cleancontents[item] = contents[item]
+                document = json.dumps(playlist)
+                print "key == {0} // data == {1}\n\n".format(key,document)
+                r.set(key,document)
             except:
                 print "Oh ya, something burny\n\n"
+                traceback.print_exc(file=sys.stdout)
 
     def importTracks(self,r):
         for track in self.plistr["Tracks"]:
             try:
                 key = "track:user0:itunes:{0}:document".format(track)
-                contents = self.plistr['Tracks'][str(track)]
-                #print contents
-                document = json.dumps(contents)
-                print document
-                print "got redis object - {0}".format(r)
-                #print "key == {0} // data == {1}".format(key,document)
-                #print "key == {0} // data == {1}".format(key,contents)
-                #r.set(key,contents)
+                contents = self.plistr['Tracks'][track]
+                cleancontents = {}
+                for item in contents:
+                    if not re.search('Date', item):
+                        cleancontents[item] = contents[item]
+                document = json.dumps(cleancontents)
+                print "key == {0} // data == {1}\n\n".format(key,document)
+                r.set(key,document)
             except:
                 print "Ouch, trackData munged\n\n"
                 traceback.print_exc(file=sys.stdout)
@@ -47,7 +54,7 @@ class Playlist(object):
 def playListr(filename):
     myLib = Playlist(filename)
     r = redis.StrictRedis(host='localhost', port=6379, db=0)
-    #myLib.importPlaylists(r) 
+    myLib.importPlaylists(r) 
     myLib.importTracks(r) 
 
 if __name__ == "__main__":
