@@ -16,10 +16,8 @@ function innit()
     if  (readCookie('username') && readCookie('password')) {
         lusername = readCookie('username');
         password = readCookie('password');
-        // playlists = $.json( { url: 'http://playrrr.com:8888/playlist/' + lusername });
-        // content = "<h1>" + lusername + "</h1>";
         $("#content").html("<h1>" + lusername + "</h1>");
-        //document.getElementById("content").innerHTML="<h1>" + lusername + "</h1>";
+        //$("#content").append(playlists);
         showPlaylists(lusername);
     }
     else {

@@ -1,10 +1,20 @@
 function showPlaylists(lusername) {
     var playlistUrl = "http://playrrr.com/playlist/";
-    xreqHandler(playlistUrl, function()
-            {
-                if (xreq.readyState==4 && xreq.status==200) {
-                    $("#content").append(xreq.responseText);
+    $.getJSON(playlistUrl, function(data) {
+        var items = [];
 
-                } 
-            });
+        $.each(data, function(key,val) {
+            //alert("JSON Line: " + val);
+            var playlist = jQuery.parseJSON(val);
+            // alert( playlist.Name );
+            items.push('<li id="' + key + '">' + playlist.Name + '</li>');
+        });
+
+        $('<ul/>', {
+            'class': 'my-new-list',
+            html: items.join('')
+        }).appendTo("#content"); 
+    });
 }
+
+// $("#content").html(
