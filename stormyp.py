@@ -19,7 +19,6 @@ class PlaylistHandler(tornado.web.RequestHandler):
         print "incoming request", "\n"
         #self.write("hola playlist\n")
         if playlistID is None:
-            key = "playlist:user0:itunes:*"
             for k in collection.find().skip(10).limit(20):
                 #jk = json_util.default(k)
                 jk = json.dumps(k, default=json_util.default)
@@ -30,13 +29,25 @@ class PlaylistHandler(tornado.web.RequestHandler):
             #print str(playlistsz)
             self.write(jplaylists)
         else:
-            pass
-            #key = "playlist:user0:itunes:{0}:document".format(playlistID)
-            #self.set_header("Content-Type", "application/json") 
+            playlist = []
+            for p in collection.find({"Playlist ID" : int(playlistID)}).limit(1):
+                jp = json.dumps(p, default=json_util.default)
+                playlist.append(jp)
+
+            self.set_header("Content-Type", "application/json") 
+            self.write(playlist[0])
+
             
 class TrackHandler(tornado.web.RequestHandler):
-    def get(self,tid):
-        self.write("TRAXX Bitch {0}\n".format(tid))
+    def get(self,tid = None):
+        c = Connection()
+        db = c.musicLibrary
+        collection = db.sideb0ard_playlists
+        track = []
+        for t in collection.find({"Track ID" : int(tid)}).limit(1):
+            jt = json.dumps(t, default=json_util.default)
+            playlist.append(jt)
+        return(track)
 
 application = tornado.web.Application([
     (r"/", MainHandler),

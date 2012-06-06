@@ -7,7 +7,7 @@ function showPlaylists(lusername) {
             //alert("JSON Line: " + val);
             var playlist = jQuery.parseJSON(val);
             // alert( playlist.Name );
-            items.push('<li id="' + key + '">' + playlist.Name + '</li>');
+            items.push('<li id="' + key + '"><a href="' + playlistUrl + playlist['Playlist ID'] + '">' + playlist.Name + '</a></li>');
         });
 
         $('<ul/>', {
