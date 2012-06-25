@@ -20,19 +20,8 @@ class Playlist(object):
         for playlist in self.plistr["Playlists"]:
             try:
                 playlistID = playlist['Playlist ID']
-                #key = "playlist:user0:itunes:{0}:document".format(playlistID)
                 print "inserting playlist {0}\n".format(playlistID)
                 pcollection.insert(playlist)
-                #print key, "\n\n"
-                #contents = self.plistr['Playlists'][playlist]
-                #print contents, "\n\n"
-                #cleancontents = {}
-                #for item in contents:
-                #    if not re.search('Date', item):
-                #        cleancontents[item] = contents[item]
-                #document = json.dumps(playlist)
-                #print "key == {0} // data == {1}\n\n".format(key,document)
-                #r.set(key,document)
             except:
                 print "Oh ya, something burny\n\n"
                 traceback.print_exc(file=sys.stdout)
@@ -40,13 +29,13 @@ class Playlist(object):
     def importTracks(self,tcollection):
         for track in self.plistr["Tracks"]:
             try:
-                key = "track:user0:itunes:{0}:document".format(track)
-                #contents = self.plistr['Tracks'][track]
+                contents = self.plistr['Tracks'][track]
+                print "Inserting {0}...\n".format(contents)
                 #cleancontents = {}
                 #for item in contents:
                 #    if not re.search('Date', item):
                 #        cleancontents[item] = contents[item]
-                #tcollection.insert(cleancontents)
+                tcollection.insert(contents)
             except:
                 print "Ouch, trackData munged\n\n"
                 traceback.print_exc(file=sys.stdout)
@@ -55,10 +44,10 @@ def playListr(filename):
     myLib = Playlist(filename)
     c = Connection()
     db = c.musicLibrary
-    pcollection = db.sideb0ard_playlists
-    myLib.importPlaylists(pcollection)
-    #tcollection = db.tracks
-    #myLib.importTracks(tcollection)
+    #pcollection = db.sideb0ard_playlists
+    #myLib.importPlaylists(pcollection)
+    tcollection = db.sideb0ard_tracks
+    myLib.importTracks(tcollection)
 
 if __name__ == "__main__":
     
